@@ -1,0 +1,19 @@
+Here's the color codes for the console. Text can also have a highlight color if you want, and the code for that is to multiply the number for the highlight color by 16 and then add it to the number for the text color. I was going to write a script to do the math for you but it wasn't playing nice and I never use highlight colors anyway.
+
+Color Codes:
+0: Black
+1: Dark blue
+2: Green
+3: Dark teal
+4: Dark red
+5: Purple
+6: Gold
+7: Light gray
+8: Dark gray
+9: Light Blue
+10: Lime
+11: Teal
+12: Red
+13: Magenta
+14: Yellow
+15: White
