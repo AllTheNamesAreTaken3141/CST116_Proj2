@@ -27,7 +27,7 @@ void colorPrint(string text, int color = 15, bool linebreak = true, HANDLE conso
 
 
 // It turns out that cin will usually break when you input a string that has whitespace in it, so I wrote this to fix it. Feel free to stick with cin if you're not trying to get input with whitespace, though.
-void whitespaceInput(string& container)
+string whitespaceInput()
 {
 	string input;
 	string afterWhitespace;
@@ -37,7 +37,7 @@ void whitespaceInput(string& container)
 
 	input += afterWhitespace; // Combine the input from the cin with anything that getline picked up.
 
-	container = input;
+	return input;
 }
 
 #pragma endregion
