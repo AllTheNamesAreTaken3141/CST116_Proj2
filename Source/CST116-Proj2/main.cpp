@@ -92,7 +92,7 @@ int getData() {
 	cin >> data;
 	return data;
 }
-void processMenuChoice(int menuChoice, int& data) {
+void processMenuChoice(int menuChoice, int data) {
 	switch (menuChoice) {
 	case 1:
 		isPosNeg(data);
