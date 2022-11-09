@@ -78,7 +78,7 @@ void displayMenu()
 	cout << "4. Find the digit at a certain position." << endl;
 	cout << "5. Display an addition table from 0-10. " << endl;
 	cout << "6. Display a multiplication table from 0-10." << endl;
-	cout << "7. End program." << endl;
+	cout << "7. End program." << endl << endl;
 	return;
 }
 int readInput()
@@ -92,6 +92,7 @@ int getData() {
 	int data = 0;
 	cout << "What number do you want to test? ";
 	cin >> data;
+	cout << endl;
 	return data;
 }
 void processMenuChoice(int menuChoice, int data) {
@@ -129,11 +130,26 @@ void isPosNeg(int val1)
 	else {
 		cout << "Your number is 0, therefore not positive or negative."<< endl;
 	}
+	cout << endl << "----------------" << endl << endl;
 	return;
 }
 void isOddEven(int val1)
 {
-	// ...
+	int temp = val1 % 2;
+	if (val1 == 0) {
+		cout << "Your number is 0, therefore it is not negative nor positive." << endl;
+		cout << endl << "----------------" << endl << endl;
+		return;
+
+	}
+	if (temp == 1 || temp == -1) {
+		cout << "Your number is odd." << endl;
+	}
+	if (temp == 0) {
+		cout << "Your number is even." << endl;
+	}
+	cout << endl << "----------------" << endl << endl;
+	return;
 }
 void findNumDigits(int val1)
 {
