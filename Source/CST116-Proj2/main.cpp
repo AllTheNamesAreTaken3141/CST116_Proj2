@@ -119,13 +119,13 @@ void processMenuChoice(int menuChoice, int data) {
 void isPosNeg(int val1)
 {
 	if (val1 < 0) {
-		cout << "Your number is negative.";
+		cout << "Your number is negative."<< endl;
 	}
 	else if (val1 > 0) {
-		cout << "Your number is positive.";
+		cout << "Your number is positive."<< endl;
 	}
 	else {
-		cout << "Your number is 0, therefore not positive or negative.";
+		cout << "Your number is 0, therefore not positive or negative."<< endl;
 	}
 	return;
 }
