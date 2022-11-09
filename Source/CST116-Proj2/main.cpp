@@ -61,9 +61,11 @@ int main()
 	int menuSelection = 1;
 	while (menuSelection != 7)
 	{
-		int data = getData();
 		displayMenu();
 		menuSelection = readInput();
+		if (menuSelection == 7)
+			break;
+		int data = getData();
 		processMenuChoice(menuSelection, data);
 	}
 }
