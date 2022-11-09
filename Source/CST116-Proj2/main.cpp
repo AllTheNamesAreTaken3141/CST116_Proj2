@@ -1,11 +1,11 @@
 #include <iostream>
-#include <windows.h> // Allows access to windows system commands and other associated black magic.
+#include <windows.h> // Allows access to windows system commands and other associated black magic (for colored printing).
 #include <string> // Required for the getline in the whitespaceInput function below, but useful in a lot of other cases too.
 
 using namespace std;
 
-#pragma region colorprints // This isn't C++, it's a VS thing that lets you collapse the entire section. Very useful for keeping your code organized.
-
+// Output functions. The pragma command isn't c++ BTW, it's a visual studio thing that lets you collapse an entire region into a single line. Very useful for organizing things.
+#pragma region output
 const HANDLE HCONSOLE = GetStdHandle(STD_OUTPUT_HANDLE); // I'm like 90% sure that this is an address that points to the console and lets us mess with it.
 
 // Uses those system commands I mentioned to print in full color (color_codes.txt has the codes for all 16 colors) with (optional) automatic line breaks. If you end up needing/wanting to put multiple colors on the line then send me a message. I have a function that'll do it without you having to stack this one a bunch of times, but it's a pain to use so I'm not going to add it unless I need to. Anyway, this one takes up to 4 parameters, but you'll probably only ever end up using the first two.
@@ -24,8 +24,10 @@ void colorPrint(string text, int color = 15, bool linebreak = true, HANDLE conso
 	}
 
 }
+#pragma endregion
 
-
+// Input functions.
+#pragma region input
 // It turns out that cin will usually break when you input a string that has whitespace in it, so I wrote this to fix it. Feel free to stick with cin if you're not trying to get input with whitespace, though.
 string whitespaceInput()
 {
