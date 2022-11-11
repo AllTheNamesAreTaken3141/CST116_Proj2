@@ -1,147 +1,164 @@
+// The main changes I made that involve your code are to make sure the user enters a number, and only asking the user what number they want to test when they decide to change it. I did my best to keep your code as intact as possible but a few things are changed:
+// The whole process of printing a prompt, checking if it's a number within the right range, repeat if needed, etc. is a lot more tedious to rewrite, so I've moved it into its own function that just takes a prompt and a range as parameters.
+// Not asking for a new number every time required a few more changes, but most of it is just updating the text for the menu and the other prompts. The only code change is that getData now uses a reference, not a return, since this makes it far easier for processMenuChoice to call it.
+
+#pragma region libraries
 #include <iostream>
-#include <windows.h> // Allows access to windows system commands and other associated black magic (for colored printing).
-#include <string> // Required for the getline in the whitespaceInput function below, but useful in a lot of other cases too.
-
+#include <iomanip> // For tables.
+#include <string> // String-specific functions. Mainly used for converting a number to a string.
+#include <sstream> // Stringstreams are pretty much just couts that don't print to the console. Very useful sometimes.
+#include <math.h> // Used for the floor function, which is the easiest way to check if a number is an integer.
 using namespace std;
-
-// Output functions. The pragma command isn't c++ BTW, it's a visual studio thing that lets you collapse an entire region into a single line. Very useful for organizing things.
-#pragma region output
-const HANDLE HCONSOLE = GetStdHandle(STD_OUTPUT_HANDLE); // I'm like 90% sure that this is an address that points to the console and lets us mess with it.
-
-// Uses those system commands I mentioned to print in full color (color_codes.txt has the codes for all 16 colors) with (optional) automatic line breaks. If you end up needing/wanting to put multiple colors on the line then send me a message. I have a function that'll do it without you having to stack this one a bunch of times, but it's a pain to use so I'm not going to add it unless I need to. Anyway, this one takes up to 4 parameters, but you'll probably only ever end up using the first two.
-// text (string): The text to be printed. Don't put a newline at the end.
-// color (int): The color code of the text. Optional, defaults to white.
-// linebreak (bool): Whether to end the line after printing. Optional, defaults to true.
-// console (HANDLE) the console the function is printing to, used for changing color. Defaults to HCONSOLE so you can just ignore it.
-void colorPrint(string text, int color = 15, bool linebreak = true, HANDLE console = HCONSOLE)
-{
-	SetConsoleTextAttribute(console, color); // Change the output color to whatever is chosen for the text (defaults to 15, which is white).
-	cout << text;
-	SetConsoleTextAttribute(console, 15); // Set the color back to white so that we don't start randomly printing other colors.
-	if (linebreak) // Add a line break to the end of the text if needed.
-	{
-		cout << endl;
-	}
-
-}
 #pragma endregion
 
-// Input functions.
-#pragma region input
-// It turns out that cin will usually break when you input a string that has whitespace in it, so I wrote this to fix it. Feel free to stick with cin if you're not trying to get input with whitespace, though.
-string whitespaceInput()
-{
-	string input;
-	string afterWhitespace;
-	cin >> input; // cin stops reading input when it reaches any whitespace, but it doesn't get rid of what's left. Not only does that mean you lose anything the user typed after that whitespace, but it also breaks cin the next time you call it. cin (as far as I can tell) doesn't actually wait for user input, it just waits until there's something in the "input buffer". Since there's still input in the buffer, the next cin you call will see that there's something in the buffer and immediately read it instead of letting the user input something new.
-
-	getline(cin, afterWhitespace); // getline gets input from the buffer like cin does, except that it ignores whitespace, and it doesn't wait for something to be in the buffer (if there's nothing there when you call it, it just returns an empty string). I'm using it here as a sort of "cleanup" function to grab anything that's left in the buffer after the cin.
-
-	input += afterWhitespace; // Combine the input from the cin with anything that getline picked up.
-
-	return input;
-}
-
-#pragma endregion
-
-using std::cout;
-using std::cin;
-using std::endl;
-void displayMenu();
+#pragma region functionDefinitions
+bool isNumber(string);
+void getIntegerInput(string, int&, int, int);
+void displayMenu(int);
 int readInput();
-int getData();
-void processMenuChoice(int, int);
+void getData(int&);
+void processMenuChoice(int, int&);
 void isPosNeg(int);
 void isOddEven(int);
 void findNumDigits(int);
 void findDigitAtPosition(int);
 void displayAdditionTable(int);
 void displayMultiplicationTable(int);
+#pragma endregion
+
+
 int main()
 {
-	int menuSelection = 1;
-	while (menuSelection != 7)
+
+	int menuSelection = 0, data;
+	getData(data); // Start by immediately getting a number since we don't have one yet.
+	while (menuSelection != 8)
 	{
-		displayMenu();
+		displayMenu(data);
 		menuSelection = readInput();
-		if (menuSelection == 7)
-			break;
-		int data = getData();
+
+		// I removed the break statement here since it's actually not necessary. The loop will already end if menuSelection is 8, and processMenuChoice also doesn't do anything.
+
 		processMenuChoice(menuSelection, data);
 	}
+
+	return 0;
 }
-void displayMenu()
+
+
+// Returns true if the given string is a number, and false if it isn't.
+bool isNumber(string str)
 {
-	cout << "What do you want to do with your number to test? Please enter number." << endl;
-	cout << "1. Check if the number is positive or negative." << endl;
-	cout << "2. Check if the number is even or odd." << endl;
-	cout << "3. Find the number of digits in the number." << endl;
-	cout << "4. Find the digit at a certain position." << endl;
-	cout << "5. Display an addition table from 0-10. " << endl;
-	cout << "6. Display a multiplication table from 0-10." << endl;
-	cout << "7. End program." << endl << endl;
+	istringstream iss(str); // Creates a new stringstream with the string in the input buffer (as if a user had just typed it in).
+	float f;
+	iss >> noskipws >> f; // Attempts to convert the string to a float. This won't throw an error if it fails, but it will set the stream's failbit to true. noskipws causes a failure if there's any leading whitespace.
+	return (iss.eof() && !iss.fail()); // If the conversion consumed the entire string (meaning there was no trailing whitespace), and it didn't fail (meaning there wasn't any leading whitespace and the string was a number), return true; otherwise return false.
+}
+
+// This technically doesn't need to be a function, but I decided to make it one since like half the functions make the user input a number at some point. The first parameter is the prompt that is printed before getting the input, the second is the variable to put the number into, and the last two will specify a range (inclusive) of acceptable numbers if you use them.
+void getIntegerInput(string prompt, int& dest, int min = 1, int max = -1)
+{
+	bool skipRangeCheck = (min > max);
+	string input;
+	float f;
+	while (true)
+	{
+		cout << prompt;
+		cin >> input;
+		if (!isNumber(input))
+		{
+			cout << "You need to enter a number!" << endl;
+			continue; // Skips the rest of the loop and goes back to the top
+		}
+		f = stof(input);
+		if (floor(f) != f)
+		{
+			cout << "You need to enter an integer!" << endl;
+			continue;
+		}
+		if (!((min <= f && f <= max) || skipRangeCheck))
+		{
+			cout << "You need to enter a number between " << min << " and " << max << "!" << endl;
+			continue;
+		}
+		dest = f;
+		return;
+	}
+}
+
+// Menu now reminds the user what their number is.
+void displayMenu(int data)
+{
+	cout << "What do you want to do with your number (" << data << ")?" << endl
+		 << "1. Enter a new number." << endl
+		 << "2. Check if the number is positive or negative." << endl
+		 << "3. Check if the number is even or odd." << endl
+		 << "4. Find the number of digits in the number." << endl
+		 << "5. Find the digit at a certain position." << endl
+		 << "6. Display an addition table from 0-10. " << endl
+		 << "7. Display a multiplication table from 0-10." << endl
+		 << "8. End program." << endl << endl;
 	return;
 }
+
 int readInput()
 {
 	int choice = 1;
-	cout << "Enter your choice: ";
-	cin >> choice;
+	getIntegerInput("Enter your choice: ", choice, 1, 8);
 	return choice;
 }
-int getData() {
-	int data = 0;
-	cout << "What number do you want to test? ";
-	cin >> data;
-	cout << endl;
-	return data;
+
+void getData(int& data) {
+	getIntegerInput("What number do you want to test? ", data, -1000000, 1000000);
 }
-void processMenuChoice(int menuChoice, int data) {
+
+void processMenuChoice(int menuChoice, int& data) {
 	switch (menuChoice) {
 	case 1:
-		isPosNeg(data);
+		getData(data);
 		break;
 	case 2:
-		isOddEven(data);
+		isPosNeg(data);
 		break;
 	case 3:
-		findNumDigits(data);
+		isOddEven(data);
 		break;
 	case 4:
-		findDigitAtPosition(data);
+		findNumDigits(data);
 		break;
 	case 5:
-		displayAdditionTable(data);
+		findDigitAtPosition(data);
 		break;
 	case 6:
-		displayMultiplicationTable(data);
+		displayAdditionTable(data);
 		break;
 	case 7:
+		displayMultiplicationTable(data);
+		break;
+	case 8:
 		break;
 	}
 }
-void isPosNeg(int val1)
+
+void isPosNeg(int val)
 {
-	if (val1 < 0) {
+	if (val < 0) {
 		cout << "Your number is negative." << endl;
 	}
-	else if (val1 > 0) {
+	else if (val > 0) {
 		cout << "Your number is positive." << endl;
 	}
 	else {
-		cout << "Your number is 0, therefore not positive or negative." << endl;
+		cout << "Your number is 0, and therefore neither positive nor negative." << endl;
 	}
 	cout << endl << "----------------" << endl << endl;
 	return;
 }
-void isOddEven(int val1)
+
+void isOddEven(int val)
 {
-	int temp = abs(val1) % 2;
-	if (val1 == 0) {
-		cout << "Your number is 0, therefore it is not negative nor positive." << endl;
-		cout << endl << "----------------" << endl << endl;
-	}
-	else if (temp == 1) {
+	int temp = abs(val) % 2;
+	if (temp == 1) {
 		cout << "Your number is odd." << endl;
 	}
 	else if (temp == 0) {
@@ -150,16 +167,65 @@ void isOddEven(int val1)
 	cout << endl << "----------------" << endl << endl;
 	return;
 }
-void findNumDigits(int val1)
-{
-	// ...
-}
-void findDigitAtPosition(int val1)
-{
-	// ...
-}
-void displayAdditionTable(int val1) {
 
-}void displayMultiplicationTable(int val1) {
+void findNumDigits(int val)
+{
+	// Yes, this is valid code. C++ ignores line breaks because you end each line with a semicolon. It's useful for things like this.
+	cout << "Your number has "
+		 << to_string(val).size() // Finding the number of digits in a number is surprisingly non-trivial. The best way I've found is to use to_string() to convert the number to a string, and then use .size() to find the length of the string.
+		 << " digits."
+		 << endl;
 
+	cout << endl << "----------------" << endl << endl;
+	return;
+}
+
+void findDigitAtPosition(int val)
+{
+	string vstr = to_string(val);
+	int index;
+	string suffix;
+	getIntegerInput("What digit would you like to find? ", index, 1, vstr.length());
+
+	// This is called a "ternary operator" and it's really just a more readable way of writing a big chain of else ifs. The formatting is [condition] ? [do if true] : [do if false, or another condition].
+	index == 1 ? suffix = "st" :
+		index == 2 ? suffix = "nd" :
+		index == 3 ? suffix = "rd" :
+		suffix = "th";
+
+	index--; // String indices start at 0 just like everything else, so you have to subtract 0 to make everything line up.
+
+	cout << "The " << index + 1 << suffix << " digit of your number is " << vstr[index] << "." << endl;
+	cout << endl << "----------------" << endl << endl;
+	return;
+}
+
+void displayAdditionTable(int val)
+{
+	cout << "Addition Table:" << endl;
+	int col1width = to_string(val).length() + 3; // Add 3 more to fit the "+__"
+	int col2width = to_string(val + 10).length(); // This will always be the result with the most digits.
+
+	cout.setf(ios::left, ios::adjustfield);
+	for (int i = 1; i <= 10; i++)
+	{
+		cout << "|" << setw(col1width) << to_string(val) + "+" + to_string(i) << "|" << setw(col2width) << to_string(val + i) << "|" << endl;
+	}
+	cout << endl << "----------------" << endl << endl;
+	return;
+}
+
+void displayMultiplicationTable(int val)
+{
+	cout << "Multiplication Table:" << endl;
+	int col1width = to_string(val).length() + 3; // Add 3 more to fit the "+__"
+	int col2width = to_string(val * 10).length(); // This will always be the result with the most digits.
+
+	cout.setf(ios::left, ios::adjustfield);
+	for (int i = 1; i <= 10; i++)
+	{
+		cout << "|" << setw(col1width) << to_string(val) + "*" + to_string(i) << "|" << setw(col2width) << to_string(val * i) << "|" << endl;
+	}
+	cout << endl << "----------------" << endl << endl;
+	return;
 }

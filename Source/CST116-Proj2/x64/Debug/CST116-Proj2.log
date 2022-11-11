@@ -1,2 +1,8 @@
 ﻿  main.cpp
-  CST116-Proj2.vcxproj -> C:\Users\hey-t\source\repos\CST116_Proj2\Source\CST116-Proj2\x64\Debug\CST116-Proj2.exe
+C:\Users\hey-t\Source\Repos\CST116_Proj2\Source\CST116-Proj2\main.cpp(80,10): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+C:\Users\hey-t\Source\Repos\CST116_Proj2\Source\CST116-Proj2\main.cpp(184,80): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\hey-t\Source\Repos\CST116_Proj2\Source\CST116-Proj2\main.cpp(202,45): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\hey-t\Source\Repos\CST116_Proj2\Source\CST116-Proj2\main.cpp(203,46): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\hey-t\Source\Repos\CST116_Proj2\Source\CST116-Proj2\main.cpp(217,45): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\hey-t\Source\Repos\CST116_Proj2\Source\CST116-Proj2\main.cpp(218,46): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+  CST116-Proj2.vcxproj -> C:\Users\hey-t\Source\Repos\CST116_Proj2\Source\CST116-Proj2\x64\Debug\CST116-Proj2.exe
